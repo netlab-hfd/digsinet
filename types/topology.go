@@ -1,14 +1,35 @@
 package types
 
+import "fmt"
+
 // Topology represents a named, simulator-independent topology definition.
 // consisting of nodes and links between them.
 type Topology struct {
 	// Name of the Topology
-	Name string
+	Name string `yaml:"name"`
 	// Nodes that are in the Topology
-	Nodes []Node
+	Nodes []Node `yaml:"-"`
 	// Links between the Nodes in the Topology
-	Links []Link
+	Links []Link `yaml:"-"`
+}
+
+func (t Topology) MarshalYAML() (interface{}, error) {
+
+	nodesMap := make(map[string]map[string]string)
+	for _, node := range t.Nodes {
+		nodesMap[node.Name] = map[string]string{
+			"kind":  node.Kind,
+			"image": fmt.Sprintf("%s:latest", node.Kind),
+		}
+	}
+
+	return map[string]interface{}{
+		"name": t.Name,
+		"topology": map[string]interface{}{
+			"nodes": nodesMap,
+			"links": t.Links,
+		},
+	}, nil
 }
 
 // TopologyBuilder allows for programmatic creation of a Topology
@@ -29,29 +50,26 @@ func NewTopologyBuilder() *TopologyBuilder {
 }
 
 // Name sets the name of the Topology
-func (b *TopologyBuilder) Name(name string) *TopologyBuilder {
+func (b *TopologyBuilder) Name(name string) {
 	b.topology.Name = name
-	return b
 }
 
 // AddNode adds a Node to the underlying Topology
-func (b *TopologyBuilder) AddNode(name string, kind string) *TopologyBuilder {
+func (b *TopologyBuilder) AddNode(name string, kind string) {
 	b.topology.Nodes = append(b.topology.Nodes, Node{
 		Name: name,
 		Kind: kind,
 	})
-	return b
 }
 
 // AddLink adds a Link between two nodes in the Topology. Currently, not checking if the nodes do actually exist.
-func (b *TopologyBuilder) AddLink(from string, to string, interfaceFrom string, interfaceTo string) *TopologyBuilder {
+func (b *TopologyBuilder) AddLink(from string, to string, interfaceFrom string, interfaceTo string) {
 	b.topology.Links = append(b.topology.Links, Link{
 		NodeFrom:      from,
 		NodeTo:        to,
 		InterfaceFrom: interfaceFrom,
 		InterfaceTo:   interfaceTo,
 	})
-	return b
 }
 
 // Clear revers the Topology of this TopologyBuilder to an empty state.
