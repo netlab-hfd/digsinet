@@ -1,7 +1,6 @@
 package types
 
 type Node struct {
-	Name  string
-	Kind  string
-	links []Link
+	Name string
+	Kind string
 }
