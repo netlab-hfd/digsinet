@@ -1,0 +1,13 @@
+name: srlceos01
+topology:
+  links:
+  - endpoints:
+    - nokia_srlinux:e1-1
+    - arista_ceos:eth1
+  nodes:
+    arista_ceos:
+      image: ceos:latest
+      kind: ceos
+    nokia_srlinux:
+      image: srlinux:latest
+      kind: srlinux
