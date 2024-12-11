@@ -1,11 +1,13 @@
 package builder
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/Lachstec/digsinet-ng/types"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os/exec"
+
+	"github.com/Lachstec/digsinet-ng/types"
+	"gopkg.in/yaml.v3"
 )
 
 type ClabBuilder struct {
@@ -27,6 +29,14 @@ func (b *ClabBuilder) DeployTopology(topology types.Topology) error {
 		return fmt.Errorf("failed to get stdin pipe: %w", err)
 	}
 
+	// Store stdout of the process
+	stdout := bytes.NewBuffer([]byte{})
+	proc.Stdout = stdout
+
+	// Store stderr of the process
+	stderr := bytes.NewBuffer([]byte{})
+	proc.Stderr = stderr
+
 	// Start the process
 	if err = proc.Start(); err != nil {
 		return fmt.Errorf("failed to start process: %w", err)
@@ -54,7 +64,7 @@ func (b *ClabBuilder) DeployTopology(topology types.Topology) error {
 
 	// Wait for the process to complete
 	if err = proc.Wait(); err != nil {
-		return fmt.Errorf("process finished with error: %w", err)
+		return fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout, stderr)
 	}
 
 	log.Print("Topology deployment completed successfully.")
@@ -73,6 +83,14 @@ func (b *ClabBuilder) DestroyTopology(topology types.Topology) error {
 		return fmt.Errorf("failed to get stdin pipe: %w", err)
 	}
 
+	// Store stdout of the process
+	stdout := bytes.NewBuffer([]byte{})
+	proc.Stdout = stdout
+
+	// Store stderr of the process
+	stderr := bytes.NewBuffer([]byte{})
+	proc.Stderr = stderr
+
 	// Start the process
 	if err = proc.Start(); err != nil {
 		return fmt.Errorf("failed to start process: %w", err)
@@ -100,9 +118,10 @@ func (b *ClabBuilder) DestroyTopology(topology types.Topology) error {
 
 	// Wait for the process to complete
 	if err = proc.Wait(); err != nil {
-		return fmt.Errorf("process finished with error: %w", err)
+		return fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout,
+			stderr)
 	}
 
-	log.Print("Topology deployment completed successfully.")
+	log.Print("Topology successfully destroyed.")
 	return nil
 }
