@@ -1,0 +1,25 @@
+{
+  "id": "sec",
+  "builder": "clab",
+  "topology": {
+    "name": "security",
+    "nodes": [
+      {
+        "name": "arista_ceos",
+        "kind": "ceos"
+      },
+      {
+        "name": "nokia_srlinux",
+        "kind": "nokia_srlinux"
+      }
+    ],
+    "links": [
+      {
+        "nodeFrom": "nokia_srlinux",
+        "nodeTo": "arista_ceos",
+        "interfaceFrom": "e1-1",
+        "interfaceTo": "eth1"
+      }
+    ]
+  }
+}
