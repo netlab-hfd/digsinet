@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"github.com/Lachstec/digsinet-ng/builder"
@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 )
+
+type SiblingController struct{}
 
 type sibling struct {
 	ID       string `json:"id"`
@@ -17,12 +19,12 @@ type sibling struct {
 // siblings
 var siblings = []sibling{}
 
-func getSiblings(c *gin.Context) {
+func (s SiblingController) GetSiblings(c *gin.Context) {
 	// TODO: c.JSON()?
 	c.IndentedJSON(http.StatusOK, siblings)
 }
 
-func postSiblings(c *gin.Context) {
+func (s SiblingController) CreateSibling(c *gin.Context) {
 	var newSibling sibling
 	if err := c.BindJSON(&newSibling); err != nil {
 		log.Print("Failed to bind JSON: ", err)
@@ -35,7 +37,7 @@ func postSiblings(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newSibling)
 }
 
-func getSiblingByID(c *gin.Context) {
+func (s SiblingController) GetSiblingByID(c *gin.Context) {
 	id := c.Param("id")
 	for _, s := range siblings {
 		if s.ID == id {
@@ -46,7 +48,7 @@ func getSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func postStartSiblingByID(c *gin.Context) {
+func (s SiblingController) StartSiblingByID(c *gin.Context) {
 	id := c.Param("id")
 	for _, s := range siblings {
 		if s.ID == id {
@@ -68,7 +70,7 @@ func postStartSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func postStopSiblingByID(c *gin.Context) {
+func (s SiblingController) StopSiblingByID(c *gin.Context) {
 	id := c.Param("id")
 	for _, s := range siblings {
 		if s.ID == id {
@@ -88,7 +90,7 @@ func postStopSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func deleteSiblingByID(c *gin.Context) {
+func (s SiblingController) DeleteSiblingByID(c *gin.Context) {
 	id := c.Param("id")
 	for i, s := range siblings {
 		if s.ID == id {
@@ -100,28 +102,7 @@ func deleteSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func deleteSiblings(c *gin.Context) {
+func (s SiblingController) DeleteSiblings(c *gin.Context) {
 	siblings = []sibling{}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "all siblings deleted"})
-}
-
-func main() {
-	router := gin.Default()
-
-	router.GET("/siblings", getSiblings)
-	router.GET("/siblings/:id", getSiblingByID)
-
-	router.POST("/siblings", postSiblings)
-
-	router.POST("/siblings/:id/start", postStartSiblingByID)
-	router.POST("/siblings/:id/stop", postStopSiblingByID)
-
-	router.DELETE("/siblings", deleteSiblings)
-	router.DELETE("/siblings/:id", deleteSiblingByID)
-
-	err := router.Run("localhost:8088")
-	if err != nil {
-		log.Fatal("Unable to start server: ", err)
-		return
-	}
 }

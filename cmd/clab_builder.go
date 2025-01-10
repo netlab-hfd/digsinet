@@ -8,7 +8,8 @@ import (
 
 func main() {
 	b := types.NewTopologyBuilder()
-	b.Name("srlceos01")
+	name := "srlceos01"
+	b.Name(name)
 	b.AddNode("nokia_srlinux", "nokia_srlinux")
 	b.AddNode("arista_ceos", "ceos")
 	b.AddLink("nokia_srlinux", "arista_ceos", "e1-1", "eth1")

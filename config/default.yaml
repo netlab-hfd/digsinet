@@ -1,0 +1,3 @@
+server.port: :8088
+http.auth.key: "key"
+http.auth.secret: "secret"
