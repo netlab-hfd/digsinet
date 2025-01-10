@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/Lachstec/digsinet-ng/log"
 	"os"
 
 	"github.com/Lachstec/digsinet-ng/config"
@@ -12,6 +13,8 @@ import (
 )
 
 func main() {
+	log.InitLogging()
+
 	environment := flag.String("e", "development", "")
 	flag.Usage = func() {
 		fmt.Println("Usage: server -e {mode}")

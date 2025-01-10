@@ -4,7 +4,7 @@ package rest_middlewares
 
 import (
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 
 	"crypto/sha256"
@@ -42,14 +42,18 @@ func AuthMiddleware() gin.HandlerFunc {
 		if key = conf.GetString("http.auth.key"); len(strings.TrimSpace(key)) == 0 {
 			err := c.AbortWithError(500, errors.New("no authentication key provided"))
 			if err != nil {
-				log.Print(err)
+				log.Warn().
+					Err(err).
+					Msg("Missing Authentication Key")
 			}
 			return
 		}
 		if secret = conf.GetString("http.auth.secret"); len(strings.TrimSpace(secret)) == 0 {
 			err := c.AbortWithError(401, errors.New("no authentication secret provided"))
 			if err != nil {
-				log.Print(err)
+				log.Warn().
+					Err(err).
+					Msg("Missing Authentication Secret")
 			}
 			return
 		}
@@ -59,7 +63,9 @@ func AuthMiddleware() gin.HandlerFunc {
 		if !isKeysEqual || !isSecretsEqual {
 			err := c.AbortWithError(401, errors.New("authentication failed"))
 			if err != nil {
-				log.Print(err)
+				log.Warn().
+					Err(err).
+					Msg("Authentication Failed")
 			}
 			return
 		}

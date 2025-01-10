@@ -3,8 +3,8 @@ package config
 // adapted from https://github.com/vsouza/go-gin-boilerplate
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"log"
 )
 
 var config *viper.Viper
@@ -19,7 +19,9 @@ func Init(env string) {
 	config.AddConfigPath("config/")
 	err = config.ReadInConfig()
 	if err != nil {
-		log.Fatal("error on parsing default configuration file")
+		log.Fatal().
+			Err(err).
+			Msg("Failed to read config")
 	}
 
 	envConfig := viper.New()
@@ -28,12 +30,16 @@ func Init(env string) {
 	envConfig.SetConfigName(env)
 	err = envConfig.ReadInConfig()
 	if err != nil {
-		log.Fatal("error on parsing env configuration file")
+		log.Fatal().
+			Err(err).
+			Msg("Failed to parse env configuration file")
 	}
 
 	err = config.MergeConfigMap(envConfig.AllSettings())
 	if err != nil {
-		log.Fatal("error on merging configuration files")
+		log.Fatal().
+			Err(err).
+			Msg("Failed to merge config")
 		return
 	}
 }
