@@ -3,11 +3,10 @@ package builder
 import (
 	"bytes"
 	"fmt"
-	"log"
-	"os/exec"
-
 	"github.com/Lachstec/digsinet-ng/types"
 	"gopkg.in/yaml.v3"
+	"log"
+	"os/exec"
 )
 
 type ClabBuilder struct {
@@ -68,6 +67,21 @@ func (b *ClabBuilder) DeployTopology(topology types.Topology) error {
 	}
 
 	log.Print("Topology deployment completed successfully.")
+
+	// Start interfaces of the nodes
+	//log.Print("Starting interfaces of the nodes...")
+	//for _, node := range topology.Nodes {
+	//	for _, iface := range node.Ifaces {
+	//		log.Printf("Starting iface %s of node %s...", iface.GetName(), node.Name)
+	//		iface.StartIface()
+	//		if err := proc.Run(); err != nil {
+	//			return fmt.Errorf("failed to start iface %s of node %s: %w stdout: %s stderr: %s", iface.GetName(), node.Name, err, stdout, stderr)
+	//		}
+	//	}
+	//}
+	//
+	//log.Print("Interface configuration completed successfully.")
+
 	return nil
 }
 
@@ -118,8 +132,7 @@ func (b *ClabBuilder) DestroyTopology(topology types.Topology) error {
 
 	// Wait for the process to complete
 	if err = proc.Wait(); err != nil {
-		return fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout,
-			stderr)
+		return fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout, stderr)
 	}
 
 	log.Print("Topology successfully destroyed.")

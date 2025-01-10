@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/Lachstec/digsinet-ng/iface"
+)
 
 // Topology represents a named, simulator-independent topology definition.
 // consisting of nodes and links between them.
@@ -33,7 +36,7 @@ func (t Topology) MarshalYAML() (interface{}, error) {
 }
 
 // TopologyBuilder allows for programmatic creation of a Topology
-// by using a fluent interface.
+// by using a fluent iface.
 type TopologyBuilder struct {
 	topology Topology
 }
@@ -70,6 +73,16 @@ func (b *TopologyBuilder) AddLink(from string, to string, interfaceFrom string, 
 		InterfaceFrom: interfaceFrom,
 		InterfaceTo:   interfaceTo,
 	})
+}
+
+// AddIface adds an Interface to a Node in the Topology.
+func (b *TopologyBuilder) AddIface(node string, iface iface.Iface, ifaceConfig map[string]string) {
+	for i, n := range b.topology.Nodes {
+		if n.Name == node {
+			iface.SetConfig(ifaceConfig)
+			b.topology.Nodes[i].Ifaces = append(b.topology.Nodes[i].Ifaces, iface)
+		}
+	}
 }
 
 // Clear revers the Topology of this TopologyBuilder to an empty state.
