@@ -13,4 +13,6 @@ type Builder interface {
 	// DestroyTopology destroy the specified Topology, leaving no data remaining.
 	// Returns an error if the given types.Topology is not valid or if something goes wrong while destruction.
 	DestroyTopology(types.Topology) error
+	// Id returns the Id of the Builder as a string.
+	Id() string
 }
