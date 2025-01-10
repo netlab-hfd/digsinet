@@ -4,7 +4,8 @@ import (
 	"github.com/Lachstec/digsinet-ng/builder"
 	"github.com/Lachstec/digsinet-ng/types"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/rs/zerolog/log"
+
 	"net/http"
 )
 
@@ -27,7 +28,9 @@ func (s SiblingController) GetSiblings(c *gin.Context) {
 func (s SiblingController) CreateSibling(c *gin.Context) {
 	var newSibling sibling
 	if err := c.BindJSON(&newSibling); err != nil {
-		log.Print("Failed to bind JSON: ", err)
+		log.Error().
+			Err(err).
+			Msg("Failed to bind JSON")
 		return
 	}
 
@@ -58,11 +61,15 @@ func (s SiblingController) StartSiblingByID(c *gin.Context) {
 				clab := builder.ClabBuilder{}
 				err := clab.DeployTopology(s.Topology)
 				if err != nil {
-					log.Printf("Failed to deploy topology: %s", err)
+					log.Error().
+						Err(err).
+						Msg("Failed to deploy topology")
 				}
 				return
 			default:
-				log.Printf("Unknown builder: %s", s.Builder)
+				log.Error().
+					Str("builder", s.Builder).
+					Msg("Unknown Builder: ")
 				return
 			}
 		}
@@ -79,11 +86,15 @@ func (s SiblingController) StopSiblingByID(c *gin.Context) {
 				clab := builder.ClabBuilder{}
 				err := clab.DestroyTopology(s.Topology)
 				if err != nil {
-					log.Printf("Failed to destroy topology: %s", err)
+					log.Error().
+						Err(err).
+						Msg("Failed to destroy topology")
 				}
 				return
 			default:
-				log.Printf("Unknown builder: %s", s.Builder)
+				log.Error().
+					Str("builder", s.Builder).
+					Msg("Unknown Builder: ")
 			}
 		}
 	}
