@@ -6,6 +6,7 @@ import (
 	"github.com/Lachstec/digsinet-ng/types"
 )
 
+//nolint:all
 func main() {
 	b := types.NewTopologyBuilder()
 	name := "srlceos01"
