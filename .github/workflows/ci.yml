@@ -22,7 +22,6 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
-          working-directory: src/provisioning
 
   build:
     runs-on: ubuntu-latest
@@ -36,13 +35,10 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Install Dependencies
-        working-directory: src/provisioning
         run: go mod download
 
       - name: Build Service
-        working-directory: src/provisioning
         run: go build -v ./...
 
       - name: Run Unit Tests
-        working-directory: src/provisioning
         run: go test ./...
