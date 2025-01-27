@@ -12,6 +12,7 @@ type GnmicIface struct {
 	pids   map[int32]int32
 }
 
+//nolint:all
 func NewGnmicIface() *GnmicIface {
 	return &GnmicIface{
 		name:   "gnmic",
@@ -20,16 +21,16 @@ func NewGnmicIface() *GnmicIface {
 	}
 }
 
-func (i GnmicIface) GetName() string {
+func (i *GnmicIface) GetName() string {
 	return i.name
 }
 
-func (i GnmicIface) SetConfig(config map[string]string) {
+func (i *GnmicIface) SetConfig(config map[string]string) {
 	i.config = config
 }
 
-func (i GnmicIface) StartIface() {
-	log.Printf("Starting gNMIc interface %s for node %s...", i.name)
+func (i *GnmicIface) StartIface() {
+	log.Printf("Starting gNMIc interface %s...", i.name)
 
 	// Prepare the command
 	args := []string{"subscribe", "--address", i.name}
@@ -50,16 +51,16 @@ func (i GnmicIface) StartIface() {
 	log.Printf("gNMIc process started with PID %d", proc.Process.Pid)
 }
 
-func (g GnmicIface) StopIface() {
-	log.Printf("Stopping gNMIc interface %s...", g.name)
+func (i *GnmicIface) StopIface() {
+	log.Printf("Stopping gNMIc interface %s...", i.name)
 
-	for pid := range g.pids {
+	for pid := range i.pids {
 		proc := exec.Command("kill", "-9", fmt.Sprintf("%d", pid))
 		if err := proc.Run(); err != nil {
 			log.Printf("Failed to stop gnmic process with PID %d: %v", pid, err)
 		} else {
 			log.Printf("gNMIc process with PID %d stopped", pid)
-			delete(g.pids, pid)
+			delete(i.pids, pid)
 		}
 	}
 }

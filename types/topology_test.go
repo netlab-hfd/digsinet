@@ -21,7 +21,7 @@ func TestTopology(t *testing.T) {
 	topo := builder.Build()
 	output, err := yaml.Marshal(topo)
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to marshal topology: %s", err))
+		t.Fatalf(fmt.Sprintf("Failed to marshal topology: %s", err))
 	}
 
 	t.Log(string(output))
