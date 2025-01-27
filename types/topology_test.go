@@ -2,7 +2,6 @@ package types
 
 import (
 	_ "embed"
-	"fmt"
 	"github.com/go-yaml/yaml"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -21,7 +20,7 @@ func TestTopology(t *testing.T) {
 	topo := builder.Build()
 	output, err := yaml.Marshal(topo)
 	if err != nil {
-		t.Fatalf(fmt.Sprintf("Failed to marshal topology: %s", err))
+		t.Fatalf("Failed to marshal topology: %s", err)
 	}
 
 	t.Log(string(output))
