@@ -2,11 +2,15 @@ package builder
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"net"
+	"os/exec"
+
+	"github.com/Lachstec/digsinet-ng/iface"
 	"github.com/Lachstec/digsinet-ng/types"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
-	"os/exec"
 )
 
 type ClabBuilder struct {
@@ -92,20 +96,6 @@ func (b *ClabBuilder) DeployTopology(topology types.Topology) error {
 		Str("Builder", b.Id()).
 		Msg("Successfully deployed topology")
 
-	// Start interfaces of the nodes
-	//log.Print("Starting interfaces of the nodes...")
-	//for _, node := range topology.Nodes {
-	//	for _, iface := range node.Ifaces {
-	//		log.Printf("Starting iface %s of node %s...", iface.GetName(), node.Name)
-	//		iface.StartIface()
-	//		if err := proc.Run(); err != nil {
-	//			return fmt.Errorf("failed to start iface %s of node %s: %w stdout: %s stderr: %s", iface.GetName(), node.Name, err, stdout, stderr)
-	//		}
-	//	}
-	//}
-	//
-	//log.Print("Interface configuration completed successfully.")
-
 	return nil
 }
 
@@ -184,6 +174,104 @@ func (b *ClabBuilder) DestroyTopology(topology types.Topology) error {
 	log.Info().
 		Str("Builder", b.Id()).
 		Msg("Successfully deployed topology")
+	return nil
+}
+
+// needs also iface type as argument
+func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error {
+	log.Info().
+		Str("Builder", b.Id()).
+		Msg("Starting Node Interface...")
+
+	// Prepare the command
+	proc := exec.Command("clab", "inspect", "--name", topology.Name, "--format", "json")
+
+	// Store stdout of the process
+	stdout := bytes.NewBuffer([]byte{})
+	proc.Stdout = stdout
+
+	// Store stderr of the process
+	stderr := bytes.NewBuffer([]byte{})
+	proc.Stderr = stderr
+
+	// Start the process
+	if err := proc.Start(); err != nil {
+		log.Error().
+			Str("Builder", b.Id()).
+			Msg("Failed to start node iface process")
+		return fmt.Errorf("failed to start node iface process: %w", err)
+	}
+
+	// Wait for the process to complete
+	if err := proc.Wait(); err != nil {
+		log.Error().
+			Str("Builder", b.Id()).
+			Msg("Failed to wait for node iface process")
+		return fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout, stderr)
+	}
+
+	// Get node address from stdout
+	var containers map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &containers); err != nil {
+		log.Error().
+			Str("Builder", b.Id()).
+			Msg("Failed to unmarshal inspect result")
+		return fmt.Errorf("failed to unmarshal inspect result: %w", err)
+	}
+
+	for _, container := range containers["containers"].([]interface{}) {
+		containerData, ok := container.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		name, ok := containerData["name"].(string)
+		if !ok {
+			continue
+		}
+
+		if name == "clab-"+topology.Name+"-"+node {
+			ipv4AddressString, ok := containerData["ipv4_address"].(string)
+			if !ok {
+				log.Error().
+					Str("Builder", b.Id()).
+					Msg("Failed to get IP address of the node")
+				return fmt.Errorf("failed to get IP address of the node")
+			}
+			ipv4Address, _, err := net.ParseCIDR(ipv4AddressString)
+			if err != nil {
+				log.Error().
+					Str("Builder", b.Id()).
+					Msg("Failed to parse IP address of the node")
+				return fmt.Errorf("failed to parse IP address of the node: %w", err)
+			}
+			log.Info().
+				Str("Builder", b.Id()).
+				Str("Node", node).
+				Str("IP", ipv4Address.String()).
+				Msg("Successfully got IP address of the node")
+
+			// run gNMI path subscription
+			gh, err := iface.NewGNMIHandler()
+			if err != nil {
+				log.Error().
+					Str("Builder", b.Id()).
+					Msg("Failed to create GNMI handler")
+				return fmt.Errorf("failed to create GNMI handler: %w", err)
+			}
+			err = gh.SubscribeAndPublish(ipv4Address.String(), []string{"interfaces"}, topology.Name+"-"+node)
+			if err != nil {
+				log.Error().
+					Str("Builder", b.Id()).
+					Msg("Failed to subscribe and publish")
+				return fmt.Errorf("failed to subscribe and publish: %w", err)
+			}
+		}
+	}
+
+	log.Info().
+		Str("Builder", b.Id()).
+		Msg("Successfully added iface to node topology")
 	return nil
 }
 

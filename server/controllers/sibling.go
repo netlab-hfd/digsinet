@@ -101,6 +101,58 @@ func (s SiblingController) StopSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
+func (s SiblingController) StartNodeIface(c *gin.Context) {
+	id := c.Param("id")
+	node := c.Param("node")
+	for _, s := range siblings {
+		if s.ID == id {
+			switch {
+			case s.Builder == "clab":
+				clab := builder.ClabBuilder{}
+				err := clab.StartNodeIface(s.Topology, node)
+				if err != nil {
+					log.Error().
+						Err(err).
+						Msg("Failed to start node iface")
+				}
+				return
+			default:
+				log.Error().
+					Str("builder", s.Builder).
+					Msg("Unknown Builder: ")
+			}
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
+}
+
+// will be filled later, when subscription using go routine is implemented:
+
+// func (s SiblingController) StopNodeIface(c *gin.Context) {
+// 	id := c.Param("id")
+// 	node := c.Param("node")
+// 	for _, s := range siblings {
+// 		if s.ID == id {
+// 			switch {
+// 			case s.Builder == "clab":
+// 				clab := builder.ClabBuilder{}
+// 				err := clab.StopNodeIface(s.Topology, node)
+// 				if err != nil {
+// 					log.Error().
+// 						Err(err).
+// 						Msg("Failed to stop node iface")
+// 				}
+// 				return
+// 			default:
+// 				log.Error().
+// 					Str("builder", s.Builder).
+// 					Msg("Unknown Builder: ")
+// 			}
+// 		}
+// 	}
+// 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
+// }
+
 func (s SiblingController) DeleteSiblingByID(c *gin.Context) {
 	id := c.Param("id")
 	for i, s := range siblings {

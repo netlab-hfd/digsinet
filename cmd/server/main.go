@@ -5,8 +5,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Lachstec/digsinet-ng/log"
 	"os"
+
+	"github.com/Lachstec/digsinet-ng/log"
 
 	"github.com/Lachstec/digsinet-ng/config"
 	"github.com/Lachstec/digsinet-ng/server"
