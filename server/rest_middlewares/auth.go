@@ -4,8 +4,9 @@ package rest_middlewares
 
 import (
 	"errors"
-	"github.com/rs/zerolog/log"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"crypto/sha256"
 	"crypto/subtle"

@@ -18,6 +18,7 @@ func NewRESTRouter() *gin.Engine {
 	router.GET("/health", health.Status)
 	router.Use(rest_middlewares.AuthMiddleware())
 
+	// TODO: send back JSON with error message or result for each endpoint
 	v1 := router.Group("v1")
 	{
 		siblingGroup := v1.Group("sibling")
@@ -30,6 +31,9 @@ func NewRESTRouter() *gin.Engine {
 
 			siblingGroup.POST("/:id/start", sibling.StartSiblingByID)
 			siblingGroup.POST("/:id/stop", sibling.StopSiblingByID)
+
+			siblingGroup.POST("/:id/:node/start", sibling.StartNodeIface)
+			//siblingGroup.POST("/:id/:node/stop", sibling.StopNodeIface)
 
 			siblingGroup.DELETE("", sibling.DeleteSiblings)
 			siblingGroup.DELETE("/:id", sibling.DeleteSiblingByID)
