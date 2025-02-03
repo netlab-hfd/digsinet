@@ -33,7 +33,7 @@ func NewRESTRouter() *gin.Engine {
 			siblingGroup.POST("/:id/stop", sibling.StopSiblingByID)
 
 			siblingGroup.POST("/:id/:node/start", sibling.StartNodeIface)
-			//siblingGroup.POST("/:id/:node/stop", sibling.StopNodeIface)
+			siblingGroup.POST("/:id/:node/stop", sibling.StopNodeIface)
 
 			siblingGroup.DELETE("", sibling.DeleteSiblings)
 			siblingGroup.DELETE("/:id", sibling.DeleteSiblingByID)

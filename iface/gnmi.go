@@ -72,7 +72,7 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 		api.SubscriptionListMode("stream"),
 		api.Subscription(
 			// replace with given paths
-			api.Path("system"),
+			api.Path("system/state/hostname"),
 			api.SubscriptionMode("sample"),
 			api.SampleInterval(10*time.Second),
 		))
@@ -98,7 +98,7 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 		case <-subCtx.Done():
 			log.Info().
 				Str("Iface", "gNMI"). // should be Id() as for builder
-				Msg("subscription cleanup done: " + ctx.Err().Error())
+				Msg("subscription cleanup done: " + subscriptionID)
 
 			tg.StopSubscription(subscriptionID)
 			tg.Close()
@@ -117,8 +117,7 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 			case rsp := <-subRspChan:
 				log.Debug().
 					Str("Iface", "gNMI"). // should be Id() as for builder
-					//Msg("Received gNMI response: " + prototext.Format(rsp.Response))
-					Msg("Received gNMI response")
+					Msg("Received gNMI response: " + prototext.Format(rsp.Response))
 
 				if conf.GetBool("gnmi.publish") {
 					if err := gh.KafkaHandler.PublishGNMINotificationToKafka(target, rsp.Response.String()); err != nil {
@@ -136,9 +135,9 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 					return
 				}
 			case <-subCtx.Done():
-				log.Error().
+				log.Info().
 					Str("Iface", "gNMI"). // should be Id() as for builder
-					Msg("context is done: " + ctx.Err().Error())
+					Msg("subscription done: " + subscriptionID)
 
 				errChan <- subCtx.Err()
 				return
