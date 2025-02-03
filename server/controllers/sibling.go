@@ -33,7 +33,12 @@ func (s SiblingController) CreateSibling(c *gin.Context) {
 		log.Error().
 			Err(err).
 			Msg("Failed to bind JSON")
-		c.AbortWithError(http.StatusBadRequest, err)
+		err := c.AbortWithError(http.StatusBadRequest, err)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to abort with error")
+		}
 		return
 	}
 
@@ -67,7 +72,12 @@ func (s SiblingController) StartSiblingByID(c *gin.Context) {
 					log.Error().
 						Err(err).
 						Msg("Failed to deploy topology")
-					c.AbortWithError(http.StatusInternalServerError, err)
+					err := c.AbortWithError(http.StatusInternalServerError, err)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Msg("Failed to abort with error")
+					}
 					return
 				}
 				c.IndentedJSON(http.StatusOK, gin.H{"message": "topology deployed"})
@@ -76,7 +86,12 @@ func (s SiblingController) StartSiblingByID(c *gin.Context) {
 				log.Error().
 					Str("builder", s.Builder).
 					Msg("Unknown Builder: ")
-				c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				if err != nil {
+					log.Error().
+						Err(err).
+						Msg("Failed to abort with error")
+				}
 				return
 			}
 		}

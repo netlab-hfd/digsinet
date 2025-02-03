@@ -94,16 +94,14 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 
 	// Start a goroutine to handle subscription cleanup
 	go func() {
-		select {
-		case <-subCtx.Done():
-			log.Info().
-				Str("Iface", "gNMI"). // should be Id() as for builder
-				Msg("subscription cleanup done: " + subscriptionID)
+		<-subCtx.Done()
+		log.Info().
+			Str("Iface", "gNMI"). // should be Id() as for builder
+			Msg("subscription cleanup done: " + subscriptionID)
 
-			tg.StopSubscription(subscriptionID)
-			tg.Close()
-			return
-		}
+		tg.StopSubscription(subscriptionID)
+		tg.Close()
+		return
 	}()
 
 	// Create error channel for this subscription
