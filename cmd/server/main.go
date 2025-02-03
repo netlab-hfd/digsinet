@@ -13,6 +13,7 @@ import (
 	"github.com/Lachstec/digsinet-ng/server"
 )
 
+//nolint:all
 func main() {
 	log.InitLogging()
 

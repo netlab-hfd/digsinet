@@ -65,7 +65,10 @@ func (h *GNMIHandler) SubscribeAndPublish(address string, paths []string, topic 
 
 	if conf.GetBool("gnmi.publish") {
 		// publish dummy notification to Kafka
-		h.KafkaHandler.PublishGNMINotificationToKafka(topic, &gnmi.Path{}, &gnmi.TypedValue{})
+		err = h.KafkaHandler.PublishGNMINotificationToKafka(topic, &gnmi.Path{}, &gnmi.TypedValue{})
+		if err != nil {
+			return fmt.Errorf("failed to publish gNMI notification to Kafka: %v", err)
+		}
 	}
 
 	return nil
