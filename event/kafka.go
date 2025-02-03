@@ -1,11 +1,8 @@
 package event
 
 import (
-	"fmt"
-
 	"github.com/IBM/sarama"
 	"github.com/Lachstec/digsinet-ng/config"
-	"github.com/openconfig/gnmi/proto/gnmi"
 )
 
 type KafkaHandler struct {
@@ -26,11 +23,11 @@ func NewKafkaHandler() (*KafkaHandler, error) {
 }
 
 // PublishToKafka publishes the gNMI update to Kafka.
-func (k KafkaHandler) PublishGNMINotificationToKafka(topic string, path *gnmi.Path, val *gnmi.TypedValue) error {
-	message := fmt.Sprintf("gNMI Notification Path: %s, Value: %s", path, val)
+func (k KafkaHandler) PublishGNMINotificationToKafka(topic string, msg string) error {
+	//message := fmt.Sprintf("gNMI Notification Path: %s, Value: %s", msg)
 	_, _, err := k.producer.SendMessage(&sarama.ProducerMessage{
 		Topic: topic,
-		Value: sarama.StringEncoder(message),
+		Value: sarama.StringEncoder(msg),
 	})
 	return err
 }
