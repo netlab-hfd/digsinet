@@ -101,7 +101,6 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 
 		tg.StopSubscription(subscriptionID)
 		tg.Close()
-		return
 	}()
 
 	// Create error channel for this subscription

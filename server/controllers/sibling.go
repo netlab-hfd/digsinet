@@ -111,7 +111,12 @@ func (s SiblingController) StopSiblingByID(c *gin.Context) {
 					log.Error().
 						Err(err).
 						Msg("Failed to destroy topology")
-					c.AbortWithError(http.StatusInternalServerError, err)
+					err := c.AbortWithError(http.StatusInternalServerError, err)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Msg("Failed to abort with error")
+					}
 					return
 				}
 				c.IndentedJSON(http.StatusOK, gin.H{"message": "topology destroyed"})
@@ -120,7 +125,12 @@ func (s SiblingController) StopSiblingByID(c *gin.Context) {
 				log.Error().
 					Str("builder", s.Builder).
 					Msg("Unknown Builder: ")
-				c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				if err != nil {
+					log.Error().
+						Err(err).
+						Msg("Failed to abort with error")
+				}
 				return
 			}
 		}
@@ -141,7 +151,12 @@ func (s SiblingController) StartNodeIface(c *gin.Context) {
 					log.Error().
 						Err(err).
 						Msg("Failed to start node iface")
-					c.AbortWithError(http.StatusInternalServerError, err)
+					err := c.AbortWithError(http.StatusInternalServerError, err)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Msg("Failed to abort with error")
+					}
 					return
 				} else {
 					c.IndentedJSON(http.StatusOK, gin.H{"subscriptionID": subscriptionID})
@@ -151,7 +166,12 @@ func (s SiblingController) StartNodeIface(c *gin.Context) {
 				log.Error().
 					Str("builder", s.Builder).
 					Msg("Unknown Builder: ")
-				c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				if err != nil {
+					log.Error().
+						Err(err).
+						Msg("Failed to abort with error")
+				}
 				return
 			}
 		}
@@ -173,7 +193,12 @@ func (s SiblingController) StopNodeIface(c *gin.Context) {
 					log.Error().
 						Err(err).
 						Msg("Failed to stop node iface")
-					c.AbortWithError(http.StatusInternalServerError, err)
+					err := c.AbortWithError(http.StatusInternalServerError, err)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Msg("Failed to abort with error")
+					}
 					return
 				}
 				c.IndentedJSON(http.StatusOK, gin.H{"message": "node iface stopped"})
@@ -182,7 +207,12 @@ func (s SiblingController) StopNodeIface(c *gin.Context) {
 				log.Error().
 					Str("builder", s.Builder).
 					Msg("Unknown Builder: ")
-				c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				err := c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("Unknown Builder: %s", s.Builder))
+				if err != nil {
+					log.Error().
+						Err(err).
+						Msg("Failed to abort with error")
+				}
 				return
 			}
 		}
