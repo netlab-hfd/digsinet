@@ -67,15 +67,21 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 	// fmt.Println(prototext.Format(capResp))
 
 	// create a gNMI subscribeRequest
-	subReq, err := api.NewSubscribeRequest(
+	var subscriptions []api.GNMIOption
+	subscriptions = append(subscriptions,
 		api.Encoding("json_ietf"),
-		api.SubscriptionListMode("stream"),
-		api.Subscription(
-			// replace with given paths
-			api.Path("system/state/hostname"),
-			api.SubscriptionMode("sample"),
-			api.SampleInterval(10*time.Second),
-		))
+		api.SubscriptionListMode("stream"))
+
+	for _, path := range paths {
+		subscriptions = append(subscriptions,
+			api.Subscription(
+				api.Path(path),
+				api.SubscriptionMode("sample"),
+				api.SampleInterval(10*time.Second),
+			))
+	}
+
+	subReq, err := api.NewSubscribeRequest(subscriptions...)
 	if err != nil {
 		log.Fatal().AnErr("iface", err)
 	}

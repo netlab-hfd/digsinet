@@ -48,7 +48,7 @@ func (s SiblingController) CreateSibling(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, gin.H{"message": "sibling created"})
 }
 
-func (s SiblingController) GetSiblingByID(c *gin.Context) {
+func (s SiblingController) GetSibling(c *gin.Context) {
 	id := c.Param("id")
 	for _, s := range siblings {
 		if s.ID == id {
@@ -59,7 +59,7 @@ func (s SiblingController) GetSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func (s SiblingController) StartSiblingByID(c *gin.Context) {
+func (s SiblingController) StartSibling(c *gin.Context) {
 	id := c.Param("id")
 	for _, s := range siblings {
 		if s.ID == id {
@@ -99,7 +99,7 @@ func (s SiblingController) StartSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func (s SiblingController) StopSiblingByID(c *gin.Context) {
+func (s SiblingController) StopSibling(c *gin.Context) {
 	id := c.Param("id")
 	for _, s := range siblings {
 		if s.ID == id {
@@ -138,15 +138,33 @@ func (s SiblingController) StopSiblingByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
+type StartNodeIfaceRequest struct {
+	Path string `json:"path" binding:"required"`
+}
+
 func (s SiblingController) StartNodeIface(c *gin.Context) {
 	id := c.Param("id")
 	node := c.Param("node")
+
+	var req StartNodeIfaceRequest
+	if err := c.BindJSON(&req); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to bind JSON")
+		err := c.AbortWithError(http.StatusBadRequest, err)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to abort with error")
+		}
+		return
+	}
 	for _, s := range siblings {
 		if s.ID == id {
 			switch {
 			case s.Builder == "clab":
 				clab := builder.ClabBuilder{}
-				subscriptionID, err := clab.StartNodeIface(s.Topology, node)
+				subscriptionID, err := clab.StartNodeIface(s.Topology, node, req.Path)
 				if err != nil {
 					log.Error().
 						Err(err).
@@ -220,7 +238,7 @@ func (s SiblingController) StopNodeIface(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sibling not found"})
 }
 
-func (s SiblingController) DeleteSiblingByID(c *gin.Context) {
+func (s SiblingController) DeleteSibling(c *gin.Context) {
 	id := c.Param("id")
 	for i, s := range siblings {
 		if s.ID == id {

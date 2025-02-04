@@ -177,8 +177,8 @@ func (b *ClabBuilder) DestroyTopology(topology types.Topology) error {
 	return nil
 }
 
-// needs also iface type as argument
-func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) (string, error) {
+// StartNodeIface starts monitoring a node's interface using gNMI subscription
+func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string, path string) (string, error) {
 	log.Info().
 		Str("Builder", b.Id()).
 		Msg("Starting Node Interface...")
@@ -259,7 +259,7 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) (stri
 					Msg("Failed to create GNMI handler")
 				return "", fmt.Errorf("failed to create GNMI handler: %w", err)
 			}
-			subscriptionID, err := gh.SubscribeAndPublish(ipv4Address.String(), []string{"interfaces"}, topology.Name+"-"+node)
+			subscriptionID, err := gh.SubscribeAndPublish(ipv4Address.String(), []string{path}, topology.Name+"-"+node)
 			if err != nil {
 				log.Error().
 					Str("Builder", b.Id()).
