@@ -177,8 +177,8 @@ func (b *ClabBuilder) DestroyTopology(topology types.Topology) error {
 	return nil
 }
 
-// needs also iface type as argument
-func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error {
+// StartNodeIface starts monitoring a node's interface using gNMI subscription
+func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string, path string) (string, error) {
 	log.Info().
 		Str("Builder", b.Id()).
 		Msg("Starting Node Interface...")
@@ -199,7 +199,7 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error
 		log.Error().
 			Str("Builder", b.Id()).
 			Msg("Failed to start node iface process")
-		return fmt.Errorf("failed to start node iface process: %w", err)
+		return "", fmt.Errorf("failed to start node iface process: %w", err)
 	}
 
 	// Wait for the process to complete
@@ -207,7 +207,7 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error
 		log.Error().
 			Str("Builder", b.Id()).
 			Msg("Failed to wait for node iface process")
-		return fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout, stderr)
+		return "", fmt.Errorf("process finished with error: %w stdout: %s stderr: %s", err, stdout, stderr)
 	}
 
 	// Get node address from stdout
@@ -216,7 +216,7 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error
 		log.Error().
 			Str("Builder", b.Id()).
 			Msg("Failed to unmarshal inspect result")
-		return fmt.Errorf("failed to unmarshal inspect result: %w", err)
+		return "", fmt.Errorf("failed to unmarshal inspect result: %w", err)
 	}
 
 	for _, container := range containers["containers"].([]interface{}) {
@@ -236,14 +236,14 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error
 				log.Error().
 					Str("Builder", b.Id()).
 					Msg("Failed to get IP address of the node")
-				return fmt.Errorf("failed to get IP address of the node")
+				return "", fmt.Errorf("failed to get IP address of the node")
 			}
 			ipv4Address, _, err := net.ParseCIDR(ipv4AddressString)
 			if err != nil {
 				log.Error().
 					Str("Builder", b.Id()).
 					Msg("Failed to parse IP address of the node")
-				return fmt.Errorf("failed to parse IP address of the node: %w", err)
+				return "", fmt.Errorf("failed to parse IP address of the node: %w", err)
 			}
 			log.Info().
 				Str("Builder", b.Id()).
@@ -257,21 +257,49 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string) error
 				log.Error().
 					Str("Builder", b.Id()).
 					Msg("Failed to create GNMI handler")
-				return fmt.Errorf("failed to create GNMI handler: %w", err)
+				return "", fmt.Errorf("failed to create GNMI handler: %w", err)
 			}
-			err = gh.SubscribeAndPublish(ipv4Address.String(), []string{"interfaces"}, topology.Name+"-"+node)
+			subscriptionID, err := gh.SubscribeAndPublish(ipv4Address.String(), []string{path}, topology.Name+"-"+node)
 			if err != nil {
 				log.Error().
 					Str("Builder", b.Id()).
 					Msg("Failed to subscribe and publish")
-				return fmt.Errorf("failed to subscribe and publish: %w", err)
+				return "", fmt.Errorf("failed to subscribe and publish: %w", err)
 			}
+			return subscriptionID, nil
 		}
 	}
 
 	log.Info().
 		Str("Builder", b.Id()).
 		Msg("Successfully added iface to node topology")
+	return "", nil
+}
+
+func (b *ClabBuilder) StopNodeIface(topology types.Topology, node string, subscriptionID string) error {
+	log.Info().
+		Str("Builder", b.Id()).
+		Msg("Stopping Node Interface...")
+
+	// run gNMI path subscription
+	gh, err := iface.NewGNMIHandler()
+	if err != nil {
+		log.Error().
+			Str("Builder", b.Id()).
+			Msg("Failed to create GNMI handler")
+		return fmt.Errorf("failed to create GNMI handler: %w", err)
+	}
+	err = gh.Unsubscribe(topology.Name+"-"+node, subscriptionID)
+	if err != nil {
+		log.Error().
+			Str("Builder", b.Id()).
+			Msg("Failed to unsubscribe")
+		return fmt.Errorf("failed to unsubscribe: %w", err)
+	}
+
+	log.Info().
+		Str("Builder", b.Id()).
+		Msg("Successfully removed iface from node topology")
 	return nil
 }
 

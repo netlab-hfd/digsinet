@@ -25,18 +25,18 @@ func NewRESTRouter() *gin.Engine {
 		{
 			sibling := new(controllers.SiblingController)
 			siblingGroup.GET("", sibling.GetSiblings)
-			siblingGroup.GET("/:id", sibling.GetSiblingByID)
+			siblingGroup.GET("/:id", sibling.GetSibling)
 
 			siblingGroup.POST("", sibling.CreateSibling)
 
-			siblingGroup.POST("/:id/start", sibling.StartSiblingByID)
-			siblingGroup.POST("/:id/stop", sibling.StopSiblingByID)
+			siblingGroup.POST("/:id/start", sibling.StartSibling)
+			siblingGroup.POST("/:id/stop", sibling.StopSibling)
 
-			siblingGroup.POST("/:id/:node/start", sibling.StartNodeIface)
-			//siblingGroup.POST("/:id/:node/stop", sibling.StopNodeIface)
+			siblingGroup.POST("/:id/:node/start-node-iface", sibling.StartNodeIface)
+			siblingGroup.POST("/:id/:node/stop-node-iface", sibling.StopNodeIface)
 
 			siblingGroup.DELETE("", sibling.DeleteSiblings)
-			siblingGroup.DELETE("/:id", sibling.DeleteSiblingByID)
+			siblingGroup.DELETE("/:id", sibling.DeleteSibling)
 		}
 	}
 	return router
