@@ -32,15 +32,14 @@ func secureCompare(a, b string) int {
 	return subtle.ConstantTimeCompare(aSum, bSum)
 }
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(cfg config.Configuration) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		conf := config.GetConfig()
 		reqKey := c.Request.Header.Get("X-Auth-Key")
 		reqSecret := c.Request.Header.Get("X-Auth-Secret")
 
 		var key string
 		var secret string
-		if key = conf.GetString("http.auth.key"); len(strings.TrimSpace(key)) == 0 {
+		if key = cfg.Http.AuthKey; len(strings.TrimSpace(key)) == 0 {
 			err := c.AbortWithError(500, errors.New("no authentication key provided"))
 			if err != nil {
 				log.Warn().
@@ -49,7 +48,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			}
 			return
 		}
-		if secret = conf.GetString("http.auth.secret"); len(strings.TrimSpace(secret)) == 0 {
+		if secret = cfg.Http.AuthSecret; len(strings.TrimSpace(secret)) == 0 {
 			err := c.AbortWithError(401, errors.New("no authentication secret provided"))
 			if err != nil {
 				log.Warn().
