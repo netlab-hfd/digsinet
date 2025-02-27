@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/Lachstec/digsinet-ng/config"
 	"github.com/rs/zerolog/log"

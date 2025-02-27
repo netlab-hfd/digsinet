@@ -16,8 +16,6 @@ import (
 //nolint:all
 func main() {
 	log.InitLogging()
-
-	environment := flag.String("e", "development", "")
 	flag.Usage = func() {
 		fmt.Println("Usage: server -e {mode}")
 		os.Exit(1)

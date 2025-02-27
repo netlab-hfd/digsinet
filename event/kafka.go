@@ -9,12 +9,15 @@ type KafkaHandler struct {
 	producer sarama.SyncProducer
 }
 
-func NewKafkaHandler() (*KafkaHandler, error) {
+func NewKafkaHandler(cfg config.Configuration) (*KafkaHandler, error) {
 	configKafka := sarama.NewConfig()
 	configKafka.Producer.Return.Successes = true
 
-	conf := config.GetConfig()
-	kafkaBrokers := conf.GetStringSlice("kafka.brokers")
+	var kafkaBrokers []string
+
+	for _, broker := range cfg.Kafka.Brokers {
+		kafkaBrokers = append(kafkaBrokers, broker.ConnectionString())
+	}
 
 	producer, err := sarama.NewSyncProducer(kafkaBrokers, configKafka)
 	return &KafkaHandler{
