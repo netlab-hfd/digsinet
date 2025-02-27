@@ -1,0 +1,10 @@
+server.port: 8088
+http.auth.key: "key"
+http.auth.secret: "secret"
+gnmi.username: "admin"
+gnmi.password: "admin"
+gnmi.publish: true
+kafka:
+  brokers:
+      - hostname: "localhost"
+        port: 29092
