@@ -9,7 +9,7 @@ import (
 
 func InitRESTServer(cfg config.Configuration) {
 	r := NewRESTRouter(cfg)
-	err := r.Run(fmt.Sprint(cfg.Port))
+	err := r.Run(fmt.Sprint(cfg.Http.Address))
 	if err != nil {
 		log.Fatal().
 			Err(err).

@@ -3,16 +3,30 @@ package config
 // adapted from https://github.com/vsouza/go-gin-boilerplate
 
 import (
+	"log"
+	"os"
+
 	"github.com/spf13/viper"
 )
 
 // Init is an exported method that takes the environment starts the viper
 // (external lib) and returns the configuration struct.
-func Init(env string) {
-	viper.SetConfigName("config")
+func Init(mode string) {
+	// if mode is empty, set the config name to default
+	// otherwise, set the config name to the mode
+	if mode == "" {
+		viper.SetConfigName("config")
+	} else {
+		viper.SetConfigName(mode)
+	}
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath(homedir + "/.digsinet-ng")
 	viper.AddConfigPath("./config")
+	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("env")
 }

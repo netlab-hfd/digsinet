@@ -22,12 +22,12 @@ type KafkaConfig struct {
 }
 
 type RestConfig struct {
+	Address    string `mapstructure:"address"`
 	AuthKey    string `mapstructure:"auth.key"`
 	AuthSecret string `mapstructure:"auth.secret"`
 }
 
 type Configuration struct {
-	Port  int         `mapstructure:"port"`
 	Gnmi  GnmiConfig  `mapstructure:"gnmi"`
 	Kafka KafkaConfig `mapstructure:"kafka"`
 	Http  RestConfig  `mapstructure:"http"`
