@@ -8,4 +8,5 @@ gnmi:
   #password: "NokiaSrl1!"
   publish: true
 kafka.brokers: 
-  - "localhost:29092"
+  - hostname: "localhost"
+  - port: 29092
