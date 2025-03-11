@@ -1,49 +1,34 @@
 package config
 
-// adapted from https://github.com/vsouza/go-gin-boilerplate
+import "fmt"
 
-import (
-	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
-)
-
-var config *viper.Viper
-
-// Init is an exported method that takes the environment starts the viper
-// (external lib) and returns the configuration struct.
-func Init(env string) {
-	var err error
-	config = viper.New()
-	config.SetConfigType("yaml")
-	config.SetConfigName("default")
-	config.AddConfigPath("config/")
-	err = config.ReadInConfig()
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to read config")
-	}
-
-	envConfig := viper.New()
-	envConfig.SetConfigType("yaml")
-	envConfig.AddConfigPath("config/")
-	envConfig.SetConfigName(env)
-	err = envConfig.ReadInConfig()
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to parse env configuration file")
-	}
-
-	err = config.MergeConfigMap(envConfig.AllSettings())
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to merge config")
-		return
-	}
+type GnmiConfig struct {
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Publish  bool   `mapstructure:"publish"`
 }
 
-func GetConfig() *viper.Viper {
-	return config
+type KafkaBroker struct {
+	Hostname string `mapstructure:"hostname"`
+	Port     int    `mapstructure:"port"`
+}
+
+func (k *KafkaBroker) ConnectionString() string {
+	return fmt.Sprintf("%s:%d", k.Hostname, k.Port)
+}
+
+type KafkaConfig struct {
+	Brokers []KafkaBroker `mapstructure:"brokers"`
+}
+
+type RestConfig struct {
+	Address    string `mapstructure:"address"`
+	AuthKey    string `mapstructure:"auth.key"`
+	AuthSecret string `mapstructure:"auth.secret"`
+}
+
+type Configuration struct {
+	Gnmi  GnmiConfig  `mapstructure:"gnmi"`
+	Kafka KafkaConfig `mapstructure:"kafka"`
+	Http  RestConfig  `mapstructure:"http"`
 }

@@ -23,23 +23,22 @@ type GNMIHandler struct {
 }
 
 // NewGNMIHandler creates a new GNMIHandler.
-func NewGNMIHandler() (*GNMIHandler, error) {
-	kh, err := event.NewKafkaHandler()
+func NewGNMIHandler(cfg config.Configuration) (*GNMIHandler, error) {
+	kh, err := event.NewKafkaHandler(cfg)
 	return &GNMIHandler{
 		kh,
 	}, err
 }
 
 // SubscribeAndPublish subscribes to gNMI paths and publishes notifications to Kafka.
-func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, target string) (string, error) {
-	conf := config.GetConfig()
+func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, target string, cfg config.Configuration) (string, error) {
 
 	// create a gNMI Target erstellen
 	tg, err := api.NewTarget(
 		api.Name(target),             // TODO: make configurable, or remove
 		api.Address(address+":6030"), // needed for arista_ceos TODO: make configurable, default to 6030
-		api.Username(conf.GetString("gnmi.username")),
-		api.Password(conf.GetString("gnmi.password")),
+		api.Username(cfg.Gnmi.Username),
+		api.Password(cfg.Gnmi.Password),
 		api.SkipVerify(true), // TODO: make configurable, default to false
 		api.Insecure(true),   // needed for arista_ceos TODO: make configurable, default to false
 	)
@@ -122,7 +121,7 @@ func (gh *GNMIHandler) SubscribeAndPublish(address string, paths []string, targe
 					Str("Iface", "gNMI"). // should be Id() as for builder
 					Msg("Received gNMI response: " + prototext.Format(rsp.Response))
 
-				if conf.GetBool("gnmi.publish") {
+				if cfg.Gnmi.Publish {
 					if err := gh.KafkaHandler.PublishGNMINotificationToKafka(target, rsp.Response.String()); err != nil {
 						errChan <- fmt.Errorf("failed to publish to Kafka: %v", err)
 						return

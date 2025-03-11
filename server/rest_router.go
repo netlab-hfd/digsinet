@@ -3,12 +3,13 @@ package server
 // adapted from https://github.com/vsouza/go-gin-boilerplate
 
 import (
+	"github.com/Lachstec/digsinet-ng/config"
 	"github.com/Lachstec/digsinet-ng/server/controllers"
 	"github.com/Lachstec/digsinet-ng/server/rest_middlewares"
 	"github.com/gin-gonic/gin"
 )
 
-func NewRESTRouter() *gin.Engine {
+func NewRESTRouter(cfg config.Configuration) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
@@ -16,7 +17,7 @@ func NewRESTRouter() *gin.Engine {
 	health := new(controllers.HealthController)
 
 	router.GET("/health", health.Status)
-	router.Use(rest_middlewares.AuthMiddleware())
+	router.Use(rest_middlewares.AuthMiddleware(cfg))
 
 	// TODO: send back JSON with error message or result for each endpoint
 	v1 := router.Group("v1")

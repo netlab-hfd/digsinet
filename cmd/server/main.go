@@ -17,12 +17,18 @@ import (
 func main() {
 	log.InitLogging()
 
-	environment := flag.String("e", "development", "")
+	var eFlag = flag.String("e", "", "Environment mode (determining the config file to look for)")
 	flag.Usage = func() {
 		fmt.Println("Usage: server -e {mode}")
 		os.Exit(1)
 	}
 	flag.Parse()
-	config.Init(*environment)
-	server.InitRESTServer()
+
+	config.Init(*eFlag)
+	cfg, err := config.GetConfig()
+	if err != nil {
+		fmt.Println("failed to read in configuration file")
+	}
+
+	server.InitRESTServer(*cfg)
 }

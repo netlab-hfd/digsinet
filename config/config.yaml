@@ -1,0 +1,12 @@
+http:
+  address: ":8088"
+  auth.key: "key"
+  auth.secret: "secret"
+gnmi:
+  username: "admin"
+  password: "admin"
+  #password: "NokiaSrl1!"
+  publish: true
+kafka.brokers: 
+  - hostname: "localhost"
+  - port: 29092

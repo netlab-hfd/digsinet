@@ -7,6 +7,7 @@ import (
 	"net"
 	"os/exec"
 
+	"github.com/Lachstec/digsinet-ng/config"
 	"github.com/Lachstec/digsinet-ng/iface"
 	"github.com/Lachstec/digsinet-ng/types"
 	"github.com/rs/zerolog/log"
@@ -14,10 +15,11 @@ import (
 )
 
 type ClabBuilder struct {
+	config config.Configuration
 }
 
-func NewClabBuilder() *ClabBuilder {
-	return &ClabBuilder{}
+func NewClabBuilder(cfg config.Configuration) *ClabBuilder {
+	return &ClabBuilder{config: cfg}
 }
 
 func (b *ClabBuilder) DeployTopology(topology types.Topology) error {
@@ -252,14 +254,14 @@ func (b *ClabBuilder) StartNodeIface(topology types.Topology, node string, path 
 				Msg("Successfully got IP address of the node")
 
 			// run gNMI path subscription
-			gh, err := iface.NewGNMIHandler()
+			gh, err := iface.NewGNMIHandler(b.config)
 			if err != nil {
 				log.Error().
 					Str("Builder", b.Id()).
 					Msg("Failed to create GNMI handler")
 				return "", fmt.Errorf("failed to create GNMI handler: %w", err)
 			}
-			subscriptionID, err := gh.SubscribeAndPublish(ipv4Address.String(), []string{path}, topology.Name+"-"+node)
+			subscriptionID, err := gh.SubscribeAndPublish(ipv4Address.String(), []string{path}, topology.Name+"-"+node, b.config)
 			if err != nil {
 				log.Error().
 					Str("Builder", b.Id()).
@@ -282,7 +284,7 @@ func (b *ClabBuilder) StopNodeIface(topology types.Topology, node string, subscr
 		Msg("Stopping Node Interface...")
 
 	// run gNMI path subscription
-	gh, err := iface.NewGNMIHandler()
+	gh, err := iface.NewGNMIHandler(b.config)
 	if err != nil {
 		log.Error().
 			Str("Builder", b.Id()).

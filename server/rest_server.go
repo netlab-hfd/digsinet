@@ -1,15 +1,15 @@
 package server
 
-// adapted from https://github.com/vsouza/go-gin-boilerplate
 import (
+	"fmt"
+
 	"github.com/Lachstec/digsinet-ng/config"
 	"github.com/rs/zerolog/log"
 )
 
-func InitRESTServer() {
-	conf := config.GetConfig()
-	r := NewRESTRouter()
-	err := r.Run(conf.GetString("server.port"))
+func InitRESTServer(cfg config.Configuration) {
+	r := NewRESTRouter(cfg)
+	err := r.Run(fmt.Sprint(cfg.Http.Address))
 	if err != nil {
 		log.Fatal().
 			Err(err).
